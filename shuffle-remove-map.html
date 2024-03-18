@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sorteio de Mapas</title>
+    <style>
+        body {
+            background-color: #14FF00;
+            font-family: Arial, sans-serif;            
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        p.text-stroke {
+            -webkit-text-stroke: 1px black; /* Safari/Chrome */
+            text-stroke: 1px black; /* Outros navegadores */
+        }                
+
+        html {
+            height: 2000px;
+        }
+        p, h1, h3 {
+            color:white;            
+            font-size: 36px;
+            
+            text-shadow:
+                -1px -1px 0 black,
+                1px -1px 0 black,
+                -1px 1px 0 black,
+                1px 1px 0 black;
+        }
+        
+
+        #mapaLabel {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        #imagemSorteada {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        #imageContainer {
+            position: relative;
+        }
+
+        #loadingGif {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1; /* Ensures the GIF is on top */
+        }
+    </style>
+</head>
+<body>
+    <h1>Sorteio de Mapas</h1>
+    <button onclick="iniciarSorteio()">Gerar Sorteio</button>
+    <br><br>
+    <div id="imageContainer" style="position: relative;">
+        <img id="imagemSorteada" src="" alt="Mapa Sorteado" style="display: none; position: relative;">
+        <img id="loadingGif" src="chocobo-gif.gif" alt="Loading..." style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    </div>
+
+    <!-- <p id="mapaLabel"></p> -->
+    <div id="mapasEscolhidos"></div>    
+    <audio id="inicioAudio" src="file:///E:/path_do_seu_audio"></audio>    
+
+
+    <script>
+       const imagemSorteada = document.getElementById("imagemSorteada");
+        const loadingGif = document.getElementById("loadingGif");        
+
+        // Function to show loading GIF
+        function showLoading() {
+            loadingGif.style.display = "block";
+        }
+
+        // Function to hide loading GIF
+        function hideLoading() {
+            loadingGif.style.display = "none";
+        }
+        function playAudio(audioID) {
+            var audio = document.getElementById(audioID);
+            audio.play();
+        }
+        let mapasDisponiveis = [
+            //"Akademia Fountain Courtyard",
+            //"Alexandria",
+            //"Besaid",
+            //"Cornelia",
+            "Eden",
+            //"Floating Continent",
+            //"Insomnia",
+            //"Interdimensional Rift",
+            //"Midgar",
+            //"Moon",
+            //"Narsche",
+            "Orbone Monastery",
+            //"Padaemonium",
+            "Porta Decumana",
+            "Rabanastre",
+            "Stellar Fulcrum",
+            //"The Final Battlefield",
+            //"The Promised Meadow"
+        ];
+
+        let mapasEscolhidos = [];        
+
+        function iniciarSorteio() {
+            const botao = document.querySelector('button');
+            botao.disabled = true;
+
+            const imagemSorteada = document.getElementById('imagemSorteada');
+            const mapaLabel = document.getElementById('mapaLabel');
+            mapaLabel.textContent = "Realizando sorteio...";
+
+            const randomIndex = Math.floor(Math.random() * mapasDisponiveis.length);
+            const stageName = mapasDisponiveis[randomIndex];
+            const imagePath = `E:\\shuffle_overlay\\stages\\${stageName}.png`;
+            playAudio('inicioAudio');          
+            showLoading(); // Show loading GIF  
+            const sorteioInterval = setInterval(() => {                
+                const randomIndex = Math.floor(Math.random() * mapasDisponiveis.length);
+                const stageName = mapasDisponiveis[randomIndex];
+                const imagePath = `E:\\shuffle_overlay\\stages\\${stageName}.png`;
+                imagemSorteada.src = imagePath;
+                imagemSorteada.style.display = 'block';                
+            }, 100); // Intervalo entre as trocas de imagem durante o sorteio
+
+            setTimeout(() => {
+                clearInterval(sorteioInterval);
+                const titleMessage = `@everyone Match Number : ${matchNumber}`;
+                
+                const teamsMessage = `Teams -> ${matchesOrders.shift()}`;
+                const mensagem = `Stage: ${stageName}`;
+                
+                matchNumber++;
+                
+                
+                setTimeout(() => {
+                    enviarMensagem(mensagem);
+                }, 300)
+                
+                
+                // mapaLabel.textContent = mensagem;
+
+                // Adiciona o mapa escolhido aos mapas escolhidos
+                mapasEscolhidos.push(stageName);
+
+                // Remove o mapa escolhido dos mapas disponíveis
+                mapasDisponiveis.splice(randomIndex, 1); //se remover essa opção o mapa repete
+
+                if(mapasEscolhidos.length > 8)
+                    mapasDisponiveis = [ "The Final Battlefield"];
+
+                atualizarMapasEscolhidos();
+
+                setTimeout(() => {
+                    imagemSorteada.src = imagePath;
+                    botao.disabled = false;   
+                    hideLoading()                 
+                    playAudio('finalAudio');
+                }, 1); // Tempo de exibição da imagem após enviar a mensagem
+
+            }, 10000); // Tempo total do sorteio
+        }
+
+        function enviarMensagem(mensagem) {
+            const url = `http://localhost:5000/enviar-mensagem?texto=${mensagem}`;
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao enviar mensagem.');
+                    }
+                    console.log('Mensagem enviada com sucesso:', mensagem);
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar mensagem:', error);
+                });
+        }
+
+        function atualizarMapasEscolhidos() {
+            const mapasEscolhidosElement = document.getElementById('mapasEscolhidos');
+            mapasEscolhidosElement.innerHTML = "<p>Mapas Sorteados</p>";
+            mapasEscolhidos.forEach((mapa, index) => {
+                mapasEscolhidosElement.innerHTML += `<p style="font-size:32px">${index + 1}. ${mapa}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>

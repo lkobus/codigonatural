@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproduzir Áudio</title>
+</head>
+<body>
+  <h1>Reproduzir Áudio</h1>
+
+  <!-- Botão para reproduzir o áudio -->
+  <button onclick="playAudio()">Tocar Áudio</button>
+
+  <!-- Elemento de áudio oculto -->
+  <audio id="audioPlayer" src="file:///rotate-movement-whoosh-3-185337.mp3"></audio>
+
+  <script>
+    // Função para reproduzir o áudio
+    function playAudio() {
+      var audio = document.getElementById('audioPlayer');
+      audio.play();
+    }
+  </script>
+</body>
+</html>
